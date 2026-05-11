@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Karga | Price Alerts</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-base: #061022; --bg-surface: rgba(17, 34, 64, 0.7); 
+            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --primary: #facc15; --primary-hover: #eab308; --primary-glow: rgba(250, 204, 21, 0.2); 
+            --danger: #ef4444; --border-color: rgba(255, 255, 255, 0.1); --glass-blur: blur(12px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { display: flex; min-height: 100vh; background-color: var(--bg-base); background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(250, 204, 21, 0.1) 0px, transparent 50%); color: var(--text-main); }
+        
+        .sidebar { width: 280px; background: var(--bg-surface); backdrop-filter: var(--glass-blur); border-right: 1px solid var(--border-color); padding: 2.5rem 2rem; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .logo-container { margin-bottom: 3rem; display: flex; justify-content: center; }
+        .logo-container svg { max-width: 100%; height: auto; }
+        .nav-links { display: flex; flex-direction: column; height: 100%; gap: 0.5rem; }
+        .nav-item { padding: 0.85rem 1.2rem; color: var(--text-muted); font-size: 1rem; font-weight: 500; border-radius: 12px; cursor: pointer; text-decoration: none; display: flex; align-items: center; transition: all 0.3s; }
+        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(250, 204, 21, 0.15) 0%, rgba(250, 204, 21, 0.02) 100%); color: var(--primary); border: 1px solid rgba(250, 204, 21, 0.3); box-shadow: 0 0 20px var(--primary-glow); }
+        .logout-btn { margin-top: auto; color: var(--danger); }
+        
+        .main-content { flex: 1; padding: 3rem 4rem; overflow-y: auto; width: 100%; }
+        .header { margin-bottom: 3rem; }
+        .header h1 { font-size: 2.2rem; font-weight: 700; background: linear-gradient(to right, #f8fafc, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 0.4rem; }
+        
+        .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .card { background: var(--bg-surface); backdrop-filter: var(--glass-blur); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border-color); }
+        
+        label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted); }
+        input, textarea { width: 100%; padding: 1rem 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; font-size: 1rem; margin-bottom: 1.5rem; outline: none; color: var(--text-main); font-family: 'Outfit'; transition: all 0.3s; resize: vertical; -webkit-appearance: none; }
+        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        
+        .btn { width: 100%; padding: 1rem; background: var(--primary); color: #061022; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 1rem; -webkit-appearance: none;}
+        .btn:hover { background: var(--primary-hover); box-shadow: 0 4px 15px var(--primary-glow); }
+        
+        .alert-item { padding: 1.5rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid var(--danger); }
+        .alert-item h4 { color: var(--text-main); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .alert-item p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .badge { display: inline-block; padding: 0.4rem 1rem; background: rgba(239, 68, 68, 0.15); color: #fca5a5; border-radius: 50px; font-size: 0.8rem; font-weight: 600; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; padding: 1.5rem; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .nav-links { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+            .nav-item { white-space: nowrap; transform: none !important; }
+            .main-content { padding: 2rem; }
+            .layout-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar { padding: 1rem; }
+            .logo-container svg { width: 130px; }
+            .main-content { padding: 1.2rem; }
+            .header h1 { font-size: 1.8rem; }
+            .card { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 60" width="160" height="40">
+                <path d="M 30 5 L 44.14 20.86 A 20 20 0 1 1 15.86 20.86 Z" fill="#facc15"/>
+                <path d="M 32 18 L 18 32 L 28 32 L 24 45 L 42 27 L 32 27 Z" fill="#061022"/>
+                <text x="65" y="40" font-family="'Outfit', sans-serif" font-size="28" font-weight="800" fill="#facc15">E-<tspan fill="#f8fafc">KARGA</tspan></text>
+            </svg>
+        </div>
+        <div class="nav-links">
+            <a href="admin.html" class="nav-item">Overview</a>
+            <a href="scanner.html" class="nav-item">QR Scanner</a>
+            <a href="inventory.html" class="nav-item">Inventory Log</a>
+            <a href="alerts.html" class="nav-item active">Price Alerts</a>
+            <a href="login.html" class="nav-item logout-btn" onclick="return confirm('Securely log out?');">Logout Session</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>Price Announcements</h1>
+            <p>Push critical price updates directly to the motorist dashboard.</p>
+        </header>
+
+        <div class="layout-grid">
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Draft New Alert</h3>
+                <form onsubmit="event.preventDefault(); alert('Alert Published!'); this.reset();">
+                    <label>Alert Title</label>
+                    <input type="text" placeholder="e.g., Price Hike Alert" required>
+                    <label>Message / Details</label>
+                    <textarea rows="5" required></textarea>
+                    <button type="submit" class="btn">Broadcast Announcement</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Active Announcements</h3>
+                <div class="alert-item">
+                    <h4>⚠️ Price Hike Tomorrow</h4>
+                    <p>Expect a ₱2.50/L increase tomorrow at 6:00 AM.</p>
+                    <span class="badge">Live on Dashboard</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

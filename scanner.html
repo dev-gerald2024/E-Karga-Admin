@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Karga | Scanner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-base: #061022; --bg-surface: rgba(17, 34, 64, 0.7); 
+            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --primary: #facc15; --primary-hover: #eab308; --primary-glow: rgba(250, 204, 21, 0.2); 
+            --danger: #ef4444; --border-color: rgba(255, 255, 255, 0.1); --glass-blur: blur(12px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body { display: flex; min-height: 100vh; background-color: var(--bg-base); background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(250, 204, 21, 0.1) 0px, transparent 50%); color: var(--text-main); }
+        
+        .sidebar { width: 280px; background: var(--bg-surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-right: 1px solid var(--border-color); padding: 2.5rem 2rem; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .logo-container { margin-bottom: 3rem; display: flex; justify-content: center; }
+        .logo-container svg { max-width: 100%; height: auto; }
+        .nav-links { display: flex; flex-direction: column; height: 100%; gap: 0.5rem; }
+        .nav-item { padding: 0.85rem 1.2rem; color: var(--text-muted); font-size: 1rem; font-weight: 500; border-radius: 12px; cursor: pointer; text-decoration: none; display: flex; align-items: center; transition: all 0.3s; }
+        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(250, 204, 21, 0.15) 0%, rgba(250, 204, 21, 0.02) 100%); color: var(--primary); border: 1px solid rgba(250, 204, 21, 0.3); box-shadow: 0 0 20px var(--primary-glow); }
+        .logout-btn { margin-top: auto; color: var(--danger); }
+        
+        .main-content { flex: 1; padding: 3rem 4rem; overflow-y: auto; width: 100%; }
+        .header { margin-bottom: 3rem; }
+        .header h1 { font-size: 2.2rem; font-weight: 700; background: linear-gradient(to right, #f8fafc, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 0.4rem; }
+        
+        .scanner-container { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1000px; }
+        .card { background: var(--bg-surface); backdrop-filter: var(--glass-blur); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border-color); }
+        .camera-box { width: 100%; height: 280px; background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); margin-bottom: 1.5rem; text-align: center; padding: 1rem; }
+        
+        label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted); }
+        input { width: 100%; padding: 1rem 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; font-size: 1rem; margin-bottom: 1.5rem; outline: none; color: var(--text-main); transition: all 0.3s; -webkit-appearance: none; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        
+        .btn { width: 100%; padding: 1rem; background: rgba(255,255,255,0.1); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 1rem; -webkit-appearance: none; }
+        .btn.success { background: var(--primary); color: #061022; border: none; }
+        .btn.success:hover { background: var(--primary-hover); box-shadow: 0 0 15px var(--primary-glow); }
+        
+        #resultBox { display: none; margin-top: 1.5rem; padding: 1.5rem; border: 1px solid rgba(250, 204, 21, 0.3); background: rgba(250, 204, 21, 0.05); border-radius: 12px; }
+        .result-detail { margin-bottom: 0.6rem; font-size: 1rem; color: var(--text-muted); }
+        .result-detail strong { color: var(--text-main); font-weight: 500; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; padding: 1.5rem; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .nav-links { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+            .nav-item { white-space: nowrap; transform: none !important; }
+            .main-content { padding: 2rem; }
+            .scanner-container { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar { padding: 1rem; }
+            .logo-container svg { width: 130px; }
+            .main-content { padding: 1.2rem; }
+            .header h1 { font-size: 1.8rem; }
+            .card { padding: 1.5rem; }
+            .camera-box { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 60" width="160" height="40">
+                <path d="M 30 5 L 44.14 20.86 A 20 20 0 1 1 15.86 20.86 Z" fill="#facc15"/>
+                <path d="M 32 18 L 18 32 L 28 32 L 24 45 L 42 27 L 32 27 Z" fill="#061022"/>
+                <text x="65" y="40" font-family="'Outfit', sans-serif" font-size="28" font-weight="800" fill="#facc15">E-<tspan fill="#f8fafc">KARGA</tspan></text>
+            </svg>
+        </div>
+        <div class="nav-links">
+            <a href="admin.html" class="nav-item">Overview</a>
+            <a href="scanner.html" class="nav-item active">QR Scanner</a>
+            <a href="inventory.html" class="nav-item">Inventory Log</a>
+            <a href="alerts.html" class="nav-item">Price Alerts</a>
+            <a href="login.html" class="nav-item logout-btn" onclick="return confirm('Securely log out?');">Logout Session</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>QR Scanner & Verification</h1>
+            <p>Scan E-Karga QR codes or manually enter references.</p>
+        </header>
+
+        <div class="scanner-container">
+            <div class="card">
+                <h3 style="margin-bottom: 1rem; font-weight: 600;">Scan or Enter Code</h3>
+                <div class="camera-box">[ Camera Feed / Scanner Active ]</div>
+                <form id="verifyForm">
+                    <label>Manual Reference Entry</label>
+                    <input type="text" id="refInput" placeholder="TXN-12345" style="text-transform: uppercase;" required>
+                    <button type="submit" class="btn success">Verify Transaction</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem; font-weight: 600;">Verification Result</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;" id="waitingText">Waiting for scan...</p>
+                <div id="resultBox">
+                    <h4 style="color: var(--primary); margin-bottom: 1.2rem;">✅ Valid Reservation</h4>
+                    <div class="result-detail">Name: <strong>Juan Dela Cruz</strong></div>
+                    <div class="result-detail">Plate No: <strong>ABC-1234</strong></div>
+                    <div class="result-detail">Fuel: <strong>Diesel (20L)</strong></div>
+                    <button class="btn success" style="margin-top: 1.5rem;" onclick="claimFuel()">Mark as Claimed</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('verifyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(document.getElementById('refInput').value) {
+                document.getElementById('resultBox').style.display = 'block';
+                document.getElementById('waitingText').style.display = 'none';
+            }
+        });
+        function claimFuel() {
+            alert("Fuel claimed! Inventory updated successfully.");
+            document.getElementById('resultBox').style.display = 'none';
+            document.getElementById('waitingText').style.display = 'block';
+            document.getElementById('refInput').value = '';
+        }
+    </script>
+</body>
+</html>

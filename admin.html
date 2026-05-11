@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Karga | Command Center</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-base: #061022; --bg-surface: rgba(17, 34, 64, 0.7); 
+            --text-main: #f8fafc; --text-muted: #94a3b8;
+            --primary: #facc15; --primary-hover: #eab308; --primary-glow: rgba(250, 204, 21, 0.2); 
+            --danger: #ef4444; --border-color: rgba(255, 255, 255, 0.1); --glass-blur: blur(12px);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        
+        body { display: flex; min-height: 100vh; background-color: var(--bg-base); background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(250, 204, 21, 0.1) 0px, transparent 50%); color: var(--text-main); }
+        
+        .sidebar { width: 280px; background: var(--bg-surface); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-right: 1px solid var(--border-color); padding: 2.5rem 2rem; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+        .logo-container { margin-bottom: 3rem; display: flex; align-items: center; justify-content: center; }
+        .logo-container svg { max-width: 100%; height: auto; }
+        .nav-links { display: flex; flex-direction: column; height: 100%; gap: 0.5rem; }
+        .nav-item { padding: 0.85rem 1.2rem; color: var(--text-muted); font-size: 1rem; font-weight: 500; border-radius: 12px; cursor: pointer; text-decoration: none; display: flex; align-items: center; transition: all 0.3s; }
+        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .nav-item.active { background: linear-gradient(135deg, rgba(250, 204, 21, 0.15) 0%, rgba(250, 204, 21, 0.02) 100%); color: var(--primary); border: 1px solid rgba(250, 204, 21, 0.3); box-shadow: 0 0 20px var(--primary-glow); }
+        .logout-btn { margin-top: auto; color: var(--danger); }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); transform: none; }
+        
+        .main-content { flex: 1; padding: 3rem 4rem; overflow-y: auto; width: 100%; }
+        .header { margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 2.2rem; font-weight: 700; background: linear-gradient(to right, #f8fafc, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-muted); font-size: 1rem; margin-top: 0.4rem; }
+        
+        .user-profile { display: flex; align-items: center; gap: 12px; background: var(--bg-surface); padding: 0.5rem 1rem; border-radius: 50px; border: 1px solid var(--border-color); backdrop-filter: var(--glass-blur); }
+        .avatar { width: 35px; height: 35px; background: rgba(250, 204, 21, 0.15); border: 1px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--primary);}
+
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .card { background: var(--bg-surface); backdrop-filter: var(--glass-blur); padding: 2rem; border-radius: 20px; border: 1px solid var(--border-color); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.2); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card-title { font-size: 1rem; color: var(--text-muted); font-weight: 500; }
+        .card-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-glow); display: flex; justify-content: center; align-items: center; color: var(--primary); font-size: 1.2rem; }
+        .card-value { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main); }
+        .progress-track { background: rgba(255,255,255,0.05); height: 8px; border-radius: 10px; width: 100%; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; border-radius: 10px; box-shadow: 0 0 10px var(--primary); }
+        .fill-diesel { background: #ef4444; width: 85%; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); } 
+        .fill-unleaded { background: var(--primary); width: 25%; }
+
+        .table-section h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--text-main); }
+        .table-wrapper { background: var(--bg-surface); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); border-radius: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; min-width: 600px; }
+        th { background: rgba(255,255,255,0.02); padding: 1.2rem 2rem; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+        td { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .badge { padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: var(--primary-glow); color: var(--primary); border: 1px solid rgba(250, 204, 21, 0.3); white-space: nowrap; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; padding: 1.5rem; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .nav-links { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+            .nav-item { white-space: nowrap; transform: none !important; }
+            .logout-btn { margin-top: 0; }
+            .main-content { padding: 2rem; }
+            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar { padding: 1rem; }
+            .logo-container svg { width: 130px; }
+            .main-content { padding: 1.2rem; }
+            .header h1 { font-size: 1.8rem; }
+            .card { padding: 1.5rem; }
+            .card-value { font-size: 2rem; }
+            th, td { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 60" width="160" height="40">
+                <path d="M 30 5 L 44.14 20.86 A 20 20 0 1 1 15.86 20.86 Z" fill="#facc15"/>
+                <path d="M 32 18 L 18 32 L 28 32 L 24 45 L 42 27 L 32 27 Z" fill="#061022"/>
+                <text x="65" y="40" font-family="'Outfit', sans-serif" font-size="28" font-weight="800" fill="#facc15">E-<tspan fill="#f8fafc">KARGA</tspan></text>
+            </svg>
+        </div>
+        <div class="nav-links">
+            <a href="admin.html" class="nav-item active">Overview</a>
+            <a href="scanner.html" class="nav-item">QR Scanner</a>
+            <a href="inventory.html" class="nav-item">Inventory Log</a>
+            <a href="alerts.html" class="nav-item">Price Alerts</a>
+            <a href="login.html" class="nav-item logout-btn" onclick="return confirm('Securely log out?');">Logout Session</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h1>Command Center</h1>
+                <p>Real-time Data Feed</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">G</div>
+                <span style="font-size: 0.9rem; font-weight: 500;">Gerald Admin</span>
+            </div>
+        </header>
+
+        <section class="metrics">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Diesel Allocation</span>
+                    <div class="card-icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">⛽</div>
+                </div>
+                <div class="card-value">8,500 <span style="font-size:1.2rem; color:var(--text-muted)">/ 10k L</span></div>
+                <div class="progress-track"><div class="progress-fill fill-diesel"></div></div>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: #ef4444;">⚠️ 85% Capacity Reached</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Unleaded 91 Allocation</span>
+                    <div class="card-icon">⚡</div>
+                </div>
+                <div class="card-value">1,250 <span style="font-size:1.2rem; color:var(--text-muted)">/ 5k L</span></div>
+                <div class="progress-track"><div class="progress-fill fill-unleaded"></div></div>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--primary);">✓ Supply Stable</p>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <h3>Live Queue</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Transaction Ref</th>
+                            <th>Motorist</th>
+                            <th>Fuel & Vol</th>
+                            <th>Arrival Slot</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-family: monospace; font-weight: 600; color: var(--primary);">TXN-88492</td>
+                            <td>ABC-1234</td>
+                            <td>Diesel (20L)</td>
+                            <td>18:00 - 19:00</td>
+                            <td><span class="badge">Awaiting Scan</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
